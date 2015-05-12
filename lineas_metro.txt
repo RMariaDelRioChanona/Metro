@@ -1,0 +1,104 @@
+
+#Nombre de las estaciones para cada línea
+
+Linea1 = String["Observatorio", "Tacubaya", "Juanacatlán", "Chapultepec", "Sevilla", "Insurgentes", "Cuauhtémoc", "Balderas", 
+"Salto del Agua", "Isabel la Católica", "Pino Suárez", "Merced", "Candelaria", "San Lázaro", "Moctezuma", "Balbuena",
+    "Boulevard Puerto Aéreo", "Gómez Farías", "Zaragoza", "Pantitlán" ];
+
+Linea2 = String["Cuatro Caminos", "Panteones", "Tacuba", "Cuitlahuac", "Popotla", "Colegio Militar", "Normal", "San Cosme", 
+    "Revolución", "Hidalgo", "Bellas Artes", "Allende", "Zócalo", "Pino Suárez", "San Antonio Abad", "Chabacano", "Viaducto",
+    "Xola", "Villa de Cortés", "Nativitas", "Portales", "Ermita", "General Anaya", "Tasqueña"]
+
+Linea3 = String["Indios Verdes", "Deportivo 18 de Marzo", "Potrero", "La Raza", "Tlatelolco", "Guerrero", "Hidalgo", "Juárez",
+"Balderas", "Niños Héroes", "Hospital General", "Centro Médico", "Etiopía", "Eugenia", "División del Norte", "Zapata", 
+"Coyoacán", "Viveros", "Miguel Angel de Quevedo", "Copilco", "Universidad"]
+
+Linea4 = String["Martín Carrera", "Talismán", "Bondojito", "Consulado", "Canal del Norte", "Morelos", "Candelaria",
+    "Fray Servando", "Jamaica", "Santa Anita"]
+
+Linea5 = String["Pantitlán", "Hangares", "Terminal Aérea", "Oceanía", "Aragón", "Eduardo Molina", "Consulado", "Valle Gómez",
+"Misterios", "La Raza", "Autobuses del Norte", "Instituto del Petróleo", "Politécnico"]
+
+Linea6 = String["El Rosario", "Tezozomoc", "Azcapotzalco", "Ferrería", "Norte 45", "Vallejo", "Instituto del Petróleo", 
+"Lindavista", "Deportivo 18 de Marzo", "La Villa-Basílica", "Martín Carrera"]
+
+Linea7 = String["El Rosario", "Aquiles Sedán", "Camarones", "Refinería", "Tacuba", "San Joaquín", "Polanco", "Auditorio",
+"Constituyentes", "Tacubaya", "San Pedro de los Pinos", "San Antonio", "Mixcoac", "Barranca del Muerto"]
+
+Linea8 = String["Garibaldi", "Bellas Artes", "San Juan de Letrán", "Salto del Agua", "Doctores", "Obrera", "Chabacano",
+    "La Viga", "Santa Anita", "Coyuya", "Iztacalco", "Apatlaco", "Aculco", "Escuadrón 201", "Atlalilco", "Iztapalapa",
+"Cerro de la Estrella", "UAM-I", "Constitución de 1917"];
+
+Linea9 = String["Tacubaya", "Patriotismo", "Chilpancingo", "Centro Médico",  "Lázaro Cárdenas", "Chabacano", "Jamaica", "Mixiuhca"
+, "Velódromo", "Ciudad Deportiva", "Puebla", "Pantitlán"]
+
+LineaA = String["Pantitlán", "Agrícola Oriental", "Canal de San Juan", "Tepalcates", "Guelatao", "Peñón Viejo", "Acatitla",
+"Santa Marta", "Los Reyes", "La Paz" ]
+
+LineaB = String["Ciudad Azteca", "Plaza Aragón", "Olímpica", "Ecatepec", "Muzquiz", "Río de los Remedios", "Impulsora", 
+    "Nezahualcóyotl", "Villa de Aragón", "Bosque de Aragón", "Deportivo Oceanía", "Oceanía", "Romero Rubio", "R. Flores Magón",
+    "San Lázaro", "Morelos", "Tepito", "Lagunilla", "Garibaldi", "Guerrero", "Buenavista" ];
+
+Linea12 = String["Mixcoac", "Insurgentes Sur", "Hospital 20 de Noviembre", "Zapata", "Parque de los Venados", "Eje Central",
+"Ermita", "Mexicaltzingo", "Atlalilco", "Culhuacán", "San Andrés Tomatlán", "Lomas Estrella", "Calle 11", "Perfiférico Oriente"
+    , "Tezonco", "Olivos", "Nopalera", "Zapotitlán", "Tlaltenco", "Tláhuac"];
+
+
+#Linea madre, contiene a cada línea como un elemento de un arreglo
+Todas_Lineas = Array{String}[]
+    push!(Todas_Lineas,Linea1,Linea2,Linea3,Linea4,Linea5,Linea6,Linea7,Linea8,Linea9,LineaA,LineaB,Linea12);
+
+# Tamaño de cada línea, respectivamente
+function Length_Lineas(total_lines=Todas_Lineas)
+    length_lines = zeros(length(total_lines))
+    for i in 1:length(total_lines)
+        length_lines[i] = length(total_lines[i])
+    end
+    int(length_lines)
+end
+
+# número total de estaciones
+Length_Estaciones(total_lines=Todas_Lineas) = int(sum(Length_Lineas(total_lines)))
+
+#Dada la estación N de la línea M, nos dice que la estación N es la número N de esa línea
+function GetStationNumber(station_name, line_num, total_lines=Todas_Lineas)
+    line = total_lines[line_num]
+    if station_name in line
+    else
+        println("Error, la estación no está en esa línea")
+        return 0
+    end
+    ##Acabamos de verificar que la estación esté en la línea
+    num_1 = 0 
+    for l in total_lines[1:line_num - 1]
+        num_1 += length(l)
+    end
+    ##Hasta aquí llegamos a una estación antes de la primera de la lista
+    num_2 = 0
+    for station in line
+        num_2 += 1
+        if station == station_name
+            break
+        end
+    end
+    ##Sumamos estaciones de la misma línea hasta llegar a la que queremos
+    return num_1 + num_2
+end
+
+#Dada un número de estación N de la línea M, nos dice cuál es la estación N de la línea M.
+function GetStationName(station_number, total_lines=Todas_Lineas)
+    station_length = Length_Lineas(total_lines)
+    num = station_length[1]
+    l = 0
+    stations_so_far = 0
+    for i = 1:12 #12 pues tenemos 12 líneas
+        if  station_number <= num
+            l = i
+            break
+        end
+        num += station_length[i + 1]
+    end
+    dif =  station_number - num + station_length[l]
+    #println(dif)
+    return total_lines[l][dif]   
+end

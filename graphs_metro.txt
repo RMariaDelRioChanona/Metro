@@ -1,0 +1,47 @@
+
+include("lineas_metro.txt")
+
+using LightGraphs
+using GraphLayout
+;
+
+#Creamos una red inicial, con las estaciones como puntos o vértices.
+MetroNetwork(total_lines=Todas_Lineas) = Graph(Length_Estaciones(total_lines))
+
+# Dado el arreglo de líneas de metro, construimos una red
+# y conectamos sus vértices [estación a estación]
+# sin tomar en cuenta los trasbordos
+function ConnectSimpleNetwork(total_lines=Todas_Lineas)
+    metro_network = MetroNetwork(total_lines)
+    lines_length  = Length_Lineas(total_lines) 
+    s = 1
+    for i = 1:length(lines_length)
+        for station in s:lines_length[i] + s - 2
+            add_edge!(metro_network, station, station + 1)
+            s += 1
+        end
+        s += 1
+    end
+    return metro_network
+end
+
+# Conectamos los trasbordos.
+function ConnectLines(total_lines=Todas_Lineas)
+    num_est_tot   = Length_Estaciones(total_lines)
+    lines_length  = Length_Lineas(total_lines)
+    metro_network = ConnectSimpleNetwork(total_lines)
+    for i = 1:num_est_tot
+        for j = 1:num_est_tot
+            if i == j 
+                continue 
+                elseif GetStationName(i, total_lines) == GetStationName(j, total_lines)
+                if has_edge(metro_network, i, j)
+                else
+                    add_edge!(metro_network, i, j)
+                end
+            end
+        end
+    end
+    return metro_network
+end
+
