@@ -65,7 +65,7 @@ function GetStationNumber(station_name, line_num, total_lines=Todas_Lineas)
     line = total_lines[line_num]
     if station_name in line
     else
-        println("Error, la estación no está en esa línea")
+        #println("Error, la estación no está en esa línea")
         return 0
     end
     ##Acabamos de verificar que la estación esté en la línea
