@@ -20,7 +20,7 @@ Linea5 = String["Pantitlán", "Hangares", "Terminal Aérea", "Oceanía", "Aragó
 "Misterios", "La Raza", "Autobuses del Norte", "Instituto del Petróleo", "Politécnico"]
 
 Linea6 = String["El Rosario", "Tezozomoc", "Azcapotzalco", "Ferrería", "Norte 45", "Vallejo", "Instituto del Petróleo", 
-"Lindavista", "Deportivo 18 de Marzo", "La Villa-Basílica", "Martín Carrera"]
+    "Lindavista", "Deportivo 18 de Marzo", "La Villa-Basílica", "Martín Carrera"]
 
 Linea7 = String["El Rosario", "Aquiles Sedán", "Camarones", "Refinería", "Tacuba", "San Joaquín", "Polanco", "Auditorio",
 "Constituyentes", "Tacubaya", "San Pedro de los Pinos", "San Antonio", "Mixcoac", "Barranca del Muerto"]
@@ -43,10 +43,16 @@ Linea12 = String["Mixcoac", "Insurgentes Sur", "Hospital 20 de Noviembre", "Zapa
 "Ermita", "Mexicaltzingo", "Atlalilco", "Culhuacán", "San Andrés Tomatlán", "Lomas Estrella", "Calle 11", "Perfiférico Oriente"
     , "Tezonco", "Olivos", "Nopalera", "Zapotitlán", "Tlaltenco", "Tláhuac"];
 
-
-#Linea madre, contiene a cada línea como un elemento de un arreglo
+#Linea Madre: contiene a cada línea como un elemento de un arreglo
 Todas_Lineas = Array{String}[]
     push!(Todas_Lineas,Linea1,Linea2,Linea3,Linea4,Linea5,Linea6,Linea7,Linea8,Linea9,LineaA,LineaB,Linea12);
+
+#Línea MadrePlus = Línea Express + Línea Madre
+Todas_LineasPlus = Array{String}[]
+for i in 1:12
+    push!(Todas_LineasPlus,Todas_Lineas[i])
+end
+push!(Todas_LineasPlus,Express_Linea1,Express_Linea2,Express_Linea3,Express_Linea4,Express_Linea5,Express_Linea6,Express_Linea7,Express_Linea8,Express_Linea8,Express_Linea9,Express_LineaA,Express_LineaB,Express_Linea12);
 
 # Tamaño de cada línea, respectivamente
 function Length_Lineas(total_lines=Todas_Lineas)
@@ -59,13 +65,14 @@ end
 
 # número total de estaciones
 Length_Estaciones(total_lines=Todas_Lineas) = int(sum(Length_Lineas(total_lines)))
+N = Length_Estaciones()
 
 #Dada la estación N de la línea M, nos dice que la estación N es la número N de esa línea
 function GetStationNumber(station_name, line_num, total_lines=Todas_Lineas)
     line = total_lines[line_num]
     if station_name in line
     else
-        #println("Error, la estación no está en esa línea")
+       # println("Error, la estación no está en esa línea")
         return 0
     end
     ##Acabamos de verificar que la estación esté en la línea
@@ -85,6 +92,8 @@ function GetStationNumber(station_name, line_num, total_lines=Todas_Lineas)
     return num_1 + num_2
 end
 
+0 == GetStationNumber("Tacubaya",2)
+
 #Dada un número de estación N de la línea M, nos dice cuál es la estación N de la línea M.
 function GetStationName(station_number, total_lines=Todas_Lineas)
     station_length = Length_Lineas(total_lines)
@@ -102,3 +111,41 @@ function GetStationName(station_number, total_lines=Todas_Lineas)
     #println(dif)
     return total_lines[l][dif]   
 end
+
+# Líneas Express
+Express_Linea1  = String["Tacubaya","Centro Médico","Chabacano","Jamaica","Pantitlán"]
+
+Express_Linea2  = String["Tacuba","Hidalgo","Bellas Artes","Pino Suárez","Chabacano","Ermita"]
+
+Express_Linea3  = String["Deportivo 18 de Marzo","La Raza","Guerrero","Hidalgo","Balderas","Centro Médico","Zapata"]
+
+Express_Linea4  = String["Martín Carrera","Consulado","Morelos","Candelaria","Chabacano","Santa Anita"]
+
+Express_Linea5  = String["Pantitlán","Oceanía","Consulado","La Raza","Instituto del Petróleo"]
+
+Express_Linea6  = String["El Rosario","Instituto del Petróleo","Deportivo 18 de Marzo","Martín Carrera"]
+
+Express_Linea7  = String["El Rosario","Tacuba","Tacubaya","Mixcoac"]
+
+Express_Linea8  = String["Garibaldi","Bellas Artes","Salto del Agua","Chabacano","Santa Anita","Atlalilco"]
+
+Express_Linea9  = String["Tacubaya","Centro Médico","Chabacano","Jamaica","Pantitlán"]
+
+Express_LineaA  = String["Pantitlán","Peñón Viejo"]
+
+Express_LineaB  = String["Ciudad Azteca","Río de los Remedios","Oceanía","San Lázaro","Morelos","Garibaldi","Guerrero"]
+
+Express_Linea12 = String["Mixcoac","Zapata","Ermita","Atlalilco","Periférico Oriente","Tlahuac"];
+
+#Arreglo de Trasbordos totales
+Transfer_List = Int[]
+for i in 1:N
+    for j in 1:N
+        if i == j
+            continue
+            elseif GetStationName(i) == GetStationName(j)
+            push!(Transfer_List,i)
+        end
+    end
+end
+Transfer_List;
