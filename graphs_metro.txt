@@ -127,7 +127,7 @@ function MatrixDist(transfer_list = transfer_listplus, total_lines = Todas_Linea
 end
 
 #Sacamos tupla con número de estaciones recorridas y número de trasbordos tomados.
-function NormalesTrasbordosyExpress(i, j, D_normal=D_norm, D_express=D_plus)
+function NormalesTrasbordos(i, j, D_normal=D_norm)
     #normales
     num_tras_norm = round(D_normal[i, j]%1, 1)*10
     num_est = round(D_normal[i, j] - num_tras_norm)
@@ -136,17 +136,39 @@ end
 
 
 #Sacamos tupla con número de estaciones recorridas y número de trasbordos tomados.
-function NormalesTrasbordosyExpress(i, j, D_normal=D_norm, D_express=D_plus, express_edge=2)
-    #normales
-    num_tras_norm = round(D_normal[i, j]%1, 1)*10
-    num_est = round(D_normal[i, j] - num_tras_norm)
+function NormalesTrasbordosyExpress(i, j, D_normal=D_norm, D_express=D_plus)
     #express
     num_tras_exp = round(D_express[i, j]%1, 1)*10
     num_exp = (D_express[i,j] - round(D_express[i, j],1))*1000
     num_est_express = round(D_plus[i,j] - num_tras_exp - num_exp)
+    
+    # redefinimos i,j si estamos más allá de los límites de D_normal
+    if i > 195 
+         for k in 1:12
+            if GetStationNumber(GetStationName(i,Todas_LineasPlus),k) == 0
+                continue
+                else i = GetStationNumber(GetStationName(i,Todas_LineasPlus),k) 
+                break
+ 
+            end
+        end
+    end
+    
+    if j > 195
+        for k in 1:12
+            if  GetStationNumber(GetStationName(j,Todas_LineasPlus),k) == 0
+                continue
+                else j = GetStationNumber(GetStationName(j,Todas_LineasPlus),k) 
+                break
+            end
+        end
+    end
+    
+     #normales
+    num_tras_norm = round(D_normal[i, j]%1, 1)*10
+    num_est = round(D_normal[i, j] - num_tras_norm)
     return num_est, num_tras_norm, num_est_express, num_tras_exp
 end
-
 
 #Matriz de Distancias para Línea Normal
 D_norm = MatrixDist(transfer_list,Todas_Lineas) 
