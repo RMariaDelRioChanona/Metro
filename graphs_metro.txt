@@ -5,15 +5,16 @@ using LightGraphs
 using GraphLayout
 ;
 
-#Creamos una red inicial, con las estaciones como puntos o vértices.
 MetroNetwork(total_lines=Todas_Lineas) = Graph(Length_Estaciones(total_lines))
 
 # Dado el arreglo de líneas de metro, construimos una red
 # y conectamos sus vértices [estación a estación]
 # sin tomar en cuenta los trasbordos
+
 function ConnectSimpleNetwork(total_lines=Todas_Lineas)
     metro_network = MetroNetwork(total_lines)
     lines_length  = Length_Lineas(total_lines) 
+    
     s = 1
     for i = 1:length(lines_length)
         for station in s:lines_length[i] + s - 2
@@ -25,11 +26,11 @@ function ConnectSimpleNetwork(total_lines=Todas_Lineas)
     return metro_network
 end
 
-# Conectamos los trasbordos.
 function ConnectLines(total_lines=Todas_Lineas)
     num_est_tot   = Length_Estaciones(total_lines)
     lines_length  = Length_Lineas(total_lines)
-    metro_network = ConnectSimpleNetwork(total_lines)
+    #metro_network = ConnectSimpleNetwork(total_lines)
+    metro_network = MetroNetwork(total_lines)
     for i = 1:num_est_tot
         for j = 1:num_est_tot
             if i == j 
@@ -45,3 +46,109 @@ function ConnectLines(total_lines=Todas_Lineas)
     return metro_network
 end
 
+function ConnectFullNetwork_Weighted(normal_edge=1, transit_edge=1.1,express_edge=2.01, total_lines=Todas_Lineas)
+    num_est_tot   = Length_Estaciones(total_lines)
+    lines_length  = Length_Lineas(total_lines)
+    metro_network = MetroNetwork(total_lines)
+    edge_dists = zeros(num_est_tot,num_est_tot) #Matriz que guarda las distancias entre aristas
+    
+    #ConnectSimpleNetwork, "pesando" los ejes
+    s = 1
+    for i = 1:12 #líneas normales
+        for station in s:lines_length[i] + s - 2
+            add_edge!(metro_network, station, station + 1)
+            edge_dists[station, station + 1] = normal_edge 
+            edge_dists[station + 1, station] = normal_edge
+            s += 1
+        end
+        s += 1
+    end
+    
+    if length(total_lines) > 12
+        s = 196
+        for i = 13:24 #líneas express
+            for station in s: lines_length[i] + s - 2
+                if has_edge(metro_network, station, station + 1)
+                else
+                    add_edge!(metro_network, station, station + 1)
+                    edge_dists[station, station + 1] = express_edge   # ESTO SÍ SE PUEDE HACER A MANO 
+                    edge_dists[station + 1, station] = express_edge
+                    s += 1
+                end
+            end
+            s += 1
+        end
+    end
+    
+    #ConnectLines, pesando los trasbordos 
+    for i = 1:num_est_tot
+        for j = 1:num_est_tot
+            if GetStationName(i, total_lines) == GetStationName(j, total_lines)
+                if i != j
+                    if has_edge(metro_network, i, j)
+                    else
+                        add_edge!(metro_network, i, j)
+                        edge_dists[i, j] = transit_edge
+                        edge_dists[j, i] = transit_edge
+                    end
+                end
+            end
+        end
+    end
+    return metro_network, edge_dists
+end
+
+function MatrixDist(transfer_list = transfer_listplus, total_lines = Todas_LineasPlus)
+    
+    MetroNetwork_Weighted, Edge_Dist = ConnectFullNetwork_Weighted(1,1.1,2.001,total_lines)
+    
+    N = Length_Estaciones(total_lines)
+    D = dijkstra_shortest_paths(MetroNetwork_Weighted, 1, edge_dists = Edge_Dist).dists;
+    
+    M = Length_Lineas(total_lines) #sólo para GetStationName...
+    for i = 2:N
+        d = dijkstra_shortest_paths(MetroNetwork_Weighted, i, edge_dists = Edge_Dist).dists
+        D = hcat(D, d) # Ya está la matriz, ahora hay que corregir los trasbordos.
+    end
+        for transfer_1 in transfer_list
+         for i in 1:N
+          for transfer_2 in transfer_list
+
+            if transfer_1 == transfer_2
+            elseif GetStationName(transfer_2,total_lines,M) == GetStationName(transfer_1,total_lines,M)
+                D[transfer_2,i] =  min(D[transfer_1,i],D[transfer_2,i],D[i,transfer_1],D[i,transfer_2])
+                D[i,transfer_1] =  min(D[transfer_1,i],D[transfer_2,i],D[i,transfer_1],D[i,transfer_2])
+            end
+                
+          end
+         end
+        end
+    return D
+end
+
+#Sacamos tupla con número de estaciones recorridas y número de trasbordos tomados.
+function NormalesTrasbordosyExpress(i, j, D_normal=D_norm, D_express=D_plus)
+    #normales
+    num_tras_norm = round(D_normal[i, j]%1, 1)*10
+    num_est = round(D_normal[i, j] - num_tras_norm)
+    return num_est, num_tras
+end
+
+
+#Sacamos tupla con número de estaciones recorridas y número de trasbordos tomados.
+function NormalesTrasbordosyExpress(i, j, D_normal=D_norm, D_express=D_plus, express_edge=2)
+    #normales
+    num_tras_norm = round(D_normal[i, j]%1, 1)*10
+    num_est = round(D_normal[i, j] - num_tras_norm)
+    #express
+    num_tras_exp = round(D_express[i, j]%1, 1)*10
+    num_exp = (D_express[i,j] - round(D_express[i, j],1))*1000
+    num_est_express = round(D_plus[i,j] - num_tras_exp - num_exp)
+    return num_est, num_tras_norm, num_est_express, num_tras_exp
+end
+
+
+#Matriz de Distancias para Línea Normal
+D_norm = MatrixDist(transfer_list,Todas_Lineas) 
+#Matriz de Distancias para Línea Normal+Express
+D_plus = MatrixDist();
