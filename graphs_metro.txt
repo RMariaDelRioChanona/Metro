@@ -127,19 +127,26 @@ function MatrixDist(transfer_list = transfer_listplus, total_lines = Todas_Linea
 end
 
 #Sacamos tupla con número de estaciones recorridas y número de trasbordos tomados.
-function NormalesyTrasbordos(matrix_dist, est_init, est_final,transit_edge_dist=1.1, normal_edge_dist=1.)
-    num_tras = round(matrix_dist[est_init, est_final]%1, 1)*10
-    num_est = round((matrix_dist[est_init, est_final] - transit_edge_dist*num_tras)/normal_edge_dist, 1)
+function NormalesTrasbordosyExpress(i, j, D_normal=D_norm, D_express=D_plus)
+    #normales
+    num_tras_norm = round(D_normal[i, j]%1, 1)*10
+    num_est = round(D_normal[i, j] - num_tras_norm)
     return num_est, num_tras
 end
 
+
 #Sacamos tupla con número de estaciones recorridas y número de trasbordos tomados.
-function NormalesTrasbordosyExpress(matrix_dist, est_init, est_final,transit_edge_dist=1.1, normal_edge_dist=1., express_edge_dist = 1.001)
-    num_exp = round(matrix_dist[est_init, est_final]%1, 10)*1000
-    num_tras = round(matrix_dist[est_init, est_final]%1, 1)*10
-    num_est = round((matrix_dist[est_init, est_final] - transit_edge_dist*num_tras - express_edge_dist*num_exp)/normal_edge_dist, 1)
-    return num_est, num_tras, num_exp
+function NormalesTrasbordosyExpress(i, j, D_normal=D_norm, D_express=D_plus, express_edge=2)
+    #normales
+    num_tras_norm = round(D_normal[i, j]%1, 1)*10
+    num_est = round(D_normal[i, j] - num_tras_norm)
+    #express
+    num_tras_exp = round(D_express[i, j]%1, 1)*10
+    num_exp = (D_express[i,j] - round(D_express[i, j],1))*1000
+    num_est_express = round(D_plus[i,j] - num_tras_exp - num_exp)
+    return num_est, num_tras_norm, num_est_express, num_tras_exp
 end
+
 
 #Matriz de Distancias para Línea Normal
 D_norm = MatrixDist(transfer_list,Todas_Lineas) 
