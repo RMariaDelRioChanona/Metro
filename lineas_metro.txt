@@ -50,7 +50,7 @@ Express_Linea2  = String["Tacuba","Hidalgo","Bellas Artes","Pino Suárez","Chaba
 
 Express_Linea3  = String["Deportivo 18 de Marzo","La Raza","Guerrero","Hidalgo","Balderas","Centro Médico","Zapata"]
 
-Express_Linea4  = String["Martín Carrera","Consulado","Morelos","Candelaria","Chabacano","Santa Anita"]
+Express_Linea4  = String["Martín Carrera","Consulado","Morelos","Candelaria","Santa Anita"]
 
 Express_Linea5  = String["Pantitlán","Oceanía","Consulado","La Raza","Instituto del Petróleo"]
 
